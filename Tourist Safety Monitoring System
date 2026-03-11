@@ -1,0 +1,96 @@
+ Tourist Safety Monitoring System
+1. Introduction
+
+The Tourist Safety Monitoring System is a smart system developed to ensure the safety of tourists while traveling. It helps monitor tourist locations and allows them to send emergency alerts when they face dangerous situations. The system helps authorities or emergency services respond quickly and provide assistance.
+
+2. Working Model
+
+The working process of the system includes the following steps:
+
+Tourists register in the system through a mobile app or website.
+
+The system tracks the tourist's location using GPS.
+
+If a tourist faces danger, they can press an emergency alert button.
+
+The alert message and location are sent to authorities or emergency contacts.
+
+Authorities monitor the situation and provide immediate help.
+3. AI Used
+
+The system can use Artificial Intelligence for improving safety:
+
+Location Prediction AI – Predicts risky areas for tourists.
+
+Facial Recognition AI – Identifies missing persons.
+
+Chatbot AI – Provides tourist guidance and safety information.
+
+Anomaly Detection AI – Detects unusual activities in tourist areas.
+
+4. Domain
+
+Smart Tourism
+
+Public Safety
+
+Artificial Intelligence
+
+IoT-based Monitoring Systems
+
+5. Features
+
+Tourist registration system
+
+Real-time location tracking
+
+Emergency alert button
+
+Admin monitoring dashboard
+
+Safety notifications
+6. Technologies Used
+
+Frontend: HTML, CSS, JavaScript
+
+Backend: Java / Python / Node.js
+
+Database: MySQL
+
+Tools: GPS, Cloud storage
+
+Platform: Web or Mobile Application
+
+7. Advantages
+
+Improves tourist safety
+
+Quick emergency response
+
+Real-time monitoring
+
+Helps authorities track incidents
+
+Increases tourist confidence
+8. Disadvantages
+
+Requires internet connection
+
+Privacy concerns with location tracking
+
+High system maintenance cost
+
+GPS errors may affect accuracy
+
+9. Applications
+
+Tourist safety monitoring
+
+Smart city security systems
+
+Emergency management systems
+
+Travel assistance services
+10. Conclusion
+
+The Tourist Safety Monitoring System helps protect tourists by monitoring their location and providing quick emergency support. It improves travel safety and helps authorities respond faster during emergencies.
