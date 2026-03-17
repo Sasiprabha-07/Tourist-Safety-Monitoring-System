@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TSMS — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="app-page">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🛡️</span>
+      <span class="brand-name">TSMS</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#dashboard" class="nav-item active" onclick="showSection('dashboard', this)">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="#tourists" class="nav-item" onclick="showSection('tourists', this)">
+        <span class="nav-icon">🧳</span>
+        <span>Tourists</span>
+      </a>
+      <a href="#add" class="nav-item" onclick="showSection('add', this)">
+        <span class="nav-icon">➕</span>
+        <span>Add Tourist</span>
+      </a>
+      <a href="#about" class="nav-item" onclick="showSection('about', this)">
+        <span class="nav-icon">ℹ️</span>
+        <span>About</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <span class="user-avatar">👤</span>
+        <span id="loggedUser">admin</span>
+      </div>
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-area">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h2 class="topbar-title" id="pageTitle">Dashboard</h2>
+      </div>
+      <div class="topbar-right">
+        <span class="live-badge">🟢 Live</span>
+        <span class="top-time" id="currentTime"></span>
+      </div>
+    </header>
+
+    <!-- ===== SECTION: DASHBOARD ===== -->
+    <section id="section-dashboard" class="content-section active">
+      <div class="section-header">
+        <h3>Overview</h3>
+        <button class="btn-refresh" onclick="loadAllTourists()">↻ Refresh</button>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card stat-total">
+          <div class="stat-top">
+            <span class="stat-label">Total Tourists</span>
+            <span class="stat-emoji">🧳</span>
+          </div>
+          <div class="stat-number" id="statTotal">0</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:100%;background:#6366f1"></div></div>
+        </div>
+        <div class="stat-card stat-safe">
+          <div class="stat-top">
+            <span class="stat-label">Safe</span>
+            <span class="stat-emoji">✅</span>
+          </div>
+          <div class="stat-number" id="statSafe">0</div>
+          <div class="stat-bar"><div class="stat-bar-fill safe-bar" id="safeBar"></div></div>
+        </div>
+        <div class="stat-card stat-danger">
+          <div class="stat-top">
+            <span class="stat-label">In Danger</span>
+            <span class="stat-emoji">⚠️</span>
+          </div>
+          <div class="stat-number" id="statDanger">0</div>
+          <div class="stat-bar"><div class="stat-bar-fill danger-bar" id="dangerBar"></div></div>
+        </div>
+        <div class="stat-card stat-missing">
+          <div class="stat-top">
+            <span class="stat-label">Missing</span>
+            <span class="stat-emoji">🔍</span>
+          </div>
+          <div class="stat-number" id="statMissing">0</div>
+          <div class="stat-bar"><div class="stat-bar-fill missing-bar" id="missingBar"></div></div>
+        </div>
+      </div>
+
+      <!-- Recent Activity Table -->
+      <div class="card mt-20">
+        <div class="card-head">
+          <h4>Recent Tourists</h4>
+          <button class="btn-sm" onclick="showSection('add', document.querySelector('[href=\'#add\']'))">+ Add New</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="dashTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="dashTableBody">
+              <tr><td colspan="5" class="empty-row">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SECTION: ALL TOURISTS ===== -->
+    <section id="section-tourists" class="content-section">
+      <div class="section-header">
+        <h3>All Tourists</h3>
+        <div class="filter-row">
+          <input type="text" id="searchInput" placeholder="🔍 Search by name or location..." class="search-input" oninput="filterTable()"/>
+          <select id="filterStatus" class="filter-select" onchange="filterTable()">
+            <option value="">All Status</option>
+            <option value="Safe">Safe</option>
+            <option value="In Danger">In Danger</option>
+            <option value="Missing">Missing</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table" id="mainTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="mainTableBody">
+              <tr><td colspan="5" class="empty-row">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SECTION: ADD TOURIST ===== -->
+    <section id="section-add" class="content-section">
+      <div class="section-header">
+        <h3 id="formTitle">Add New Tourist</h3>
+      </div>
+
+      <div class="form-card">
+        <form id="touristForm" onsubmit="submitTouristForm(event)">
+          <input type="hidden" id="editId"/>
+
+          <div class="form-grid">
+            <div class="field-group">
+              <label for="touristName">Tourist Name <span class="req">*</span></label>
+              <input type="text" id="touristName" placeholder="e.g. John Smith" required/>
+            </div>
+
+            <div class="field-group">
+              <label for="touristLocation">Location <span class="req">*</span></label>
+              <input type="text" id="touristLocation" placeholder="e.g. Bangalore, India" required/>
+            </div>
+
+            <div class="field-group">
+              <label for="touristStatus">Safety Status <span class="req">*</span></label>
+              <select id="touristStatus" required>
+                <option value="">-- Select Status --</option>
+                <option value="Safe">✅ Safe</option>
+                <option value="In Danger">⚠️ In Danger</option>
+                <option value="Missing">🔍 Missing</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="formMsg" class="form-msg hidden"></div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" id="submitBtn">Add Tourist</button>
+            <button type="button" class="btn-outline" onclick="resetForm()">Clear</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== SECTION: ABOUT ===== -->
+    <section id="section-about" class="content-section">
+      <div class="section-header">
+        <h3>About This Project</h3>
+      </div>
+      <div class="about-card">
+        <div class="about-header">
+          <span class="about-icon">🛡️</span>
+          <div>
+            <h2>Tourist Safety Management System</h2>
+            <p>A College Mini Project — Full Stack Web Application</p>
+          </div>
+        </div>
+        <div class="about-grid">
+          <div class="about-item"><h5>Frontend</h5><p>HTML5, CSS3, Vanilla JavaScript, Fetch API</p></div>
+          <div class="about-item"><h5>Backend</h5><p>Java Spring Boot, REST API, MVC Architecture</p></div>
+          <div class="about-item"><h5>Database</h5><p>MySQL — tourist table with CRUD operations</p></div>
+          <div class="about-item"><h5>Features</h5><p>Login, Add/Edit/Delete Tourists, Status Tracking</p></div>
+        </div>
+        <div class="tech-stack">
+          <span class="tech-tag">Java 17</span>
+          <span class="tech-tag">Spring Boot 3</span>
+          <span class="tech-tag">MySQL 8</span>
+          <span class="tech-tag">HTML/CSS/JS</span>
+          <span class="tech-tag">REST API</span>
+          <span class="tech-tag">CORS Enabled</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== DELETE MODAL ===== -->
+  <div id="deleteModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-icon">🗑️</div>
+      <h3>Delete Tourist?</h3>
+      <p>This action cannot be undone. The tourist record will be permanently removed.</p>
+      <div class="modal-actions">
+        <button class="btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+        <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EDIT MODAL ===== -->
+  <div id="editModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3>✏️ Update Tourist Status</h3>
+      <p id="editTouristName" style="margin-bottom:16px;color:#64748b;font-size:14px;"></p>
+      <div class="field-group">
+        <label>New Status</label>
+        <select id="editStatus">
+          <option value="Safe">✅ Safe</option>
+          <option value="In Danger">⚠️ In Danger</option>
+          <option value="Missing">🔍 Missing</option>
+        </select>
+      </div>
+      <div class="modal-actions" style="margin-top:20px;">
+        <button class="btn-primary" onclick="confirmUpdate()">Update</button>
+        <button class="btn-outline" onclick="closeEditModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

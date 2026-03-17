@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TSMS — Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="auth-page">
+
+  <div class="auth-split">
+    <div class="auth-panel auth-left">
+      <div class="auth-brand">
+        <span class="brand-icon">🛡️</span>
+        <span class="brand-name">TSMS</span>
+      </div>
+      <div class="auth-hero">
+        <h1>Join the<br/>Safety<br/>Network</h1>
+        <p>Create your account to start managing tourist safety operations.</p>
+      </div>
+    </div>
+
+    <div class="auth-panel auth-right">
+      <div class="auth-form-wrap">
+        <div class="form-header">
+          <h2>Create account</h2>
+          <p>Fill in your details to register</p>
+        </div>
+
+        <div id="regSuccess" class="success-banner hidden">✅ Account created! Redirecting to login...</div>
+        <div id="regError" class="error-banner hidden">⚠️ Registration failed. Try again.</div>
+
+        <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+          <div class="field-group">
+            <label for="fullName">Full Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">🪪</span>
+              <input type="text" id="fullName" placeholder="Your full name" required/>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="regUsername">Username</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input type="text" id="regUsername" placeholder="Choose a username" required/>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="regPassword">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="regPassword" placeholder="Choose a password" required/>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔑</span>
+              <input type="password" id="confirmPassword" placeholder="Re-enter password" required/>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">Create Account</button>
+        </form>
+
+        <p class="switch-link">Already have an account? <a href="login.html">Sign in</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>
