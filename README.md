@@ -1,5 +1,4 @@
 # 🛡️ Tourist Safety Management System (TSMS)
-### College Mini Project — Full Stack Web Application
 
 ---
 
