@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SafeTrail – Tourist Safety Monitoring System</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0b0f19;
+  --surface: #131826;
+  --card: #1a2235;
+  --card2: #1f2a40;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #e8edf7;
+  --muted: #8b97b4;
+  --accent: #3d7eff;
+  --accent2: #5e96ff;
+  --green: #22d98e;
+  --red: #ff4f6a;
+  --amber: #ffb547;
+  --teal: #00d4c8;
+  --purple: #9b6dff;
+  --pink: #ff6bb0;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'Space Grotesk', sans-serif;
+  --radius: 12px;
+  --r2: 20px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
+
+/* ── Login ── */
+#login-screen {
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh;
+  background: radial-gradient(ellipse at 30% 20%, rgba(61,126,255,0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 80%, rgba(0,212,200,0.08) 0%, transparent 50%), var(--bg);
+}
+.login-box {
+  background:var(--card); border:1px solid var(--border2); border-radius:var(--r2);
+  padding:42px 48px; width:460px; max-width:92vw;
+}
+.brand { display:flex; align-items:center; gap:12px; margin-bottom:32px; }
+.brand-icon { width:44px; height:44px; background:var(--accent); border-radius:10px;
+  display:flex; align-items:center; justify-content:center; font-size:22px; }
+.brand-name { font-size:22px; font-weight:700; letter-spacing:-0.5px; }
+.brand-name span { color:var(--accent2); }
+.login-title { font-size:26px; font-weight:700; margin-bottom:6px; }
+.login-sub { color:var(--muted); font-size:14px; margin-bottom:28px; }
+.role-tabs { display:flex; gap:8px; margin-bottom:24px; }
+.rtab { flex:1; padding:9px; text-align:center; border:1px solid var(--border); border-radius:8px;
+  font-size:13px; font-weight:500; cursor:pointer; transition:.2s; color:var(--muted); }
+.rtab.active { border-color:var(--accent); color:var(--accent); background:rgba(61,126,255,0.08); }
+.field { margin-bottom:16px; }
+.field label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; font-weight:500; }
+.field input, .field select {
+  width:100%; padding:12px 16px; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); color:var(--text); font-family:var(--font); font-size:14px;
+  outline:none; transition:.2s;
+}
+.field input:focus, .field select:focus { border-color:var(--accent); }
+.field select option { background:var(--surface); }
+.btn-primary {
+  width:100%; padding:14px; background:var(--accent); color:#fff; border:none;
+  border-radius:var(--radius); font-size:15px; font-weight:600; cursor:pointer;
+  transition:.15s; font-family:var(--font); margin-top:8px; letter-spacing:0.2px;
+}
+.btn-primary:hover { background:var(--accent2); transform:translateY(-1px); }
+.demo-hint { font-size:12px; color:var(--muted); text-align:center; margin-top:16px; }
+.demo-hint b { color:var(--text); }
+
+/* ── App Shell ── */
+#app { display:none; flex-direction:column; min-height:100vh; }
+
+/* ── Top Navbar ── */
+.navbar {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:0 24px; height:60px; display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:200;
+}
+.nav-left { display:flex; align-items:center; gap:16px; }
+.nav-brand { font-size:18px; font-weight:700; letter-spacing:-0.3px; }
+.nav-brand span { color:var(--accent2); }
+.page-title { font-size:14px; color:var(--muted); font-weight:500; }
+.nav-right { display:flex; align-items:center; gap:12px; }
+.nav-badge {
+  padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600;
+  background:rgba(61,126,255,0.12); color:var(--accent2); border:1px solid rgba(61,126,255,0.25);
+}
+.nav-avatar {
+  width:36px; height:36px; border-radius:50%; background:var(--accent);
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;
+  cursor:pointer; border:2px solid var(--border2);
+}
+.alert-bell {
+  position:relative; width:36px; height:36px; border-radius:50%;
+  background:var(--card); border:1px solid var(--border); display:flex; align-items:center;
+  justify-content:center; cursor:pointer; font-size:16px;
+}
+.bell-dot {
+  position:absolute; top:5px; right:5px; width:8px; height:8px;
+  background:var(--red); border-radius:50%; border:2px solid var(--surface);
+}
+
+/* ── Main Layout ── */
+.main-layout { display:flex; flex:1; }
+.sidebar {
+  width:220px; background:var(--surface); border-right:1px solid var(--border);
+  padding:16px 0; display:flex; flex-direction:column; position:sticky; top:60px;
+  height:calc(100vh - 60px); overflow-y:auto;
+}
+.nav-section { padding:8px 16px 4px; font-size:11px; font-weight:600; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.nav-item {
+  display:flex; align-items:center; gap:10px; padding:10px 18px; cursor:pointer;
+  font-size:14px; font-weight:500; color:var(--muted); transition:.15s; border-left:3px solid transparent;
+  margin-bottom:2px;
+}
+.nav-item:hover { color:var(--text); background:rgba(255,255,255,0.04); }
+.nav-item.active { color:var(--accent2); border-left-color:var(--accent); background:rgba(61,126,255,0.08); }
+.nav-item .ni-icon { font-size:17px; }
+.nav-item .ni-badge {
+  margin-left:auto; background:var(--red); color:#fff;
+  font-size:11px; font-weight:700; padding:2px 7px; border-radius:10px;
+}
+.content { flex:1; padding:28px; overflow-y:auto; }
+
+/* ── Page sections ── */
+.page { display:none; }
+.page.active { display:block; }
+.page-header { margin-bottom:24px; }
+.page-header h2 { font-size:24px; font-weight:700; margin-bottom:4px; }
+.page-header p { color:var(--muted); font-size:14px; }
+
+/* ── Stats Grid ── */
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+.stat-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r2);
+  padding:20px 22px;
+}
+.stat-card .sc-label { font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.stat-card .sc-value { font-size:30px; font-weight:700; letter-spacing:-1px; }
+.stat-card .sc-sub { font-size:12px; color:var(--muted); margin-top:6px; }
+.stat-card .sc-trend { font-size:12px; font-weight:600; }
+.stat-card .sc-trend.up { color:var(--green); }
+.stat-card .sc-trend.dn { color:var(--red); }
+
+/* ── Cards ── */
+.card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r2);
+  padding:24px; margin-bottom:20px;
+}
+.card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.card-title { font-size:16px; font-weight:600; }
+.card-sub { font-size:13px; color:var(--muted); margin-top:2px; }
+
+/* ── Map ── */
+.map-container {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r2);
+  height:480px; position:relative; overflow:hidden; margin-bottom:20px;
+}
+.map-bg {
+  width:100%; height:100%;
+  background: radial-gradient(circle at 40% 35%, rgba(61,126,255,0.06) 0%, transparent 50%),
+              radial-gradient(circle at 70% 65%, rgba(0,212,200,0.04) 0%, transparent 40%),
+              repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 41px),
+              repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 41px);
+  position:absolute; inset:0;
+}
+.map-zone {
+  position:absolute; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:600; text-align:center; cursor:pointer; transition:.2s;
+  border:2px solid transparent;
+}
+.map-zone:hover { transform:scale(1.05); }
+.zone-safe { background:rgba(34,217,142,0.12); border-color:rgba(34,217,142,0.4); color:var(--green); }
+.zone-warn { background:rgba(255,181,71,0.12); border-color:rgba(255,181,71,0.4); color:var(--amber); }
+.zone-danger { background:rgba(255,79,106,0.14); border-color:rgba(255,79,106,0.5); color:var(--red); }
+.tourist-dot {
+  position:absolute; width:14px; height:14px; border-radius:50%;
+  background:var(--accent); border:3px solid white; cursor:pointer;
+  box-shadow:0 0 0 0 rgba(61,126,255,0.5);
+  animation:ping 2s infinite;
+}
+.tourist-dot.sos { background:var(--red); animation:ping-red 1s infinite; }
+@keyframes ping {
+  0%,100%{ box-shadow:0 0 0 0 rgba(61,126,255,0.5); }
+  50%{ box-shadow:0 0 0 8px rgba(61,126,255,0); }
+}
+@keyframes ping-red {
+  0%,100%{ box-shadow:0 0 0 0 rgba(255,79,106,0.7); }
+  50%{ box-shadow:0 0 0 12px rgba(255,79,106,0); }
+}
+.map-legend {
+  position:absolute; bottom:16px; left:16px; background:rgba(19,24,38,0.9);
+  backdrop-filter:blur(8px); border:1px solid var(--border2); border-radius:10px;
+  padding:12px 16px; font-size:12px;
+}
+.legend-item { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.legend-item:last-child { margin:0; }
+.legend-dot { width:10px; height:10px; border-radius:50%; }
+.map-controls {
+  position:absolute; top:16px; right:16px; display:flex; flex-direction:column; gap:8px;
+}
+.map-btn {
+  width:36px; height:36px; background:rgba(19,24,38,0.9); border:1px solid var(--border2);
+  border-radius:8px; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:16px; color:var(--text); transition:.15s;
+  backdrop-filter:blur(8px);
+}
+.map-btn:hover { background:var(--card); }
+.map-popup {
+  position:absolute; background:var(--card); border:1px solid var(--border2); border-radius:10px;
+  padding:12px 14px; font-size:13px; min-width:160px; pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4); display:none; z-index:10;
+}
+.map-popup.show { display:block; }
+
+/* ── Tables ── */
+.data-table { width:100%; border-collapse:collapse; font-size:14px; }
+.data-table th { padding:10px 16px; text-align:left; font-size:12px; font-weight:600;
+  color:var(--muted); text-transform:uppercase; letter-spacing:.5px; border-bottom:1px solid var(--border); }
+.data-table td { padding:12px 16px; border-bottom:1px solid var(--border); }
+.data-table tr:last-child td { border:none; }
+.data-table tr:hover td { background:rgba(255,255,255,0.02); }
+.status-pill {
+  display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px;
+  font-size:12px; font-weight:600;
+}
+.status-pill::before { content:''; width:6px; height:6px; border-radius:50%; }
+.pill-safe { background:rgba(34,217,142,0.12); color:var(--green); }
+.pill-safe::before { background:var(--green); }
+.pill-warn { background:rgba(255,181,71,0.12); color:var(--amber); }
+.pill-warn::before { background:var(--amber); }
+.pill-danger { background:rgba(255,79,106,0.12); color:var(--red); }
+.pill-danger::before { background:var(--red); }
+.pill-offline { background:rgba(139,151,180,0.12); color:var(--muted); }
+.pill-offline::before { background:var(--muted); }
+.pill-resolved { background:rgba(0,212,200,0.1); color:var(--teal); }
+.pill-resolved::before { background:var(--teal); }
+
+/* ── Alert Feed ── */
+.alert-item {
+  display:flex; align-items:flex-start; gap:12px; padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.alert-item:last-child { border:none; }
+.alert-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center;
+  justify-content:center; font-size:18px; flex-shrink:0; }
+.alert-sos { background:rgba(255,79,106,0.15); }
+.alert-zone { background:rgba(255,181,71,0.15); }
+.alert-move { background:rgba(155,109,255,0.15); }
+.alert-ok { background:rgba(34,217,142,0.1); }
+.alert-title { font-size:14px; font-weight:600; margin-bottom:3px; }
+.alert-body { font-size:13px; color:var(--muted); }
+.alert-time { font-size:12px; color:var(--muted); margin-left:auto; flex-shrink:0; }
+
+/* ── SOS Panel ── */
+.sos-card {
+  background:linear-gradient(135deg,rgba(255,79,106,0.1),rgba(255,79,106,0.04));
+  border:1px solid rgba(255,79,106,0.35); border-radius:var(--r2); padding:20px;
+  margin-bottom:20px;
+}
+.sos-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.sos-dot { width:12px; height:12px; border-radius:50%; background:var(--red);
+  animation:ping-red 1s infinite; }
+.sos-title { font-size:16px; font-weight:700; color:var(--red); }
+
+/* ── Charts ── */
+.bar-wrap { display:flex; align-items:flex-end; gap:8px; height:100px; margin-top:12px; }
+.bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bar { width:100%; border-radius:4px 4px 0 0; transition:.5s; min-height:4px; }
+.bar-label { font-size:11px; color:var(--muted); }
+
+/* ── Tourist View ── */
+.tourist-hero {
+  background: linear-gradient(135deg, rgba(61,126,255,0.12), rgba(0,212,200,0.06));
+  border:1px solid rgba(61,126,255,0.2); border-radius:var(--r2); padding:28px;
+  margin-bottom:20px; text-align:center;
+}
+.tourist-hero h3 { font-size:22px; font-weight:700; margin-bottom:6px; }
+.tourist-hero p { color:var(--muted); font-size:14px; }
+.sos-btn {
+  display:inline-flex; align-items:center; gap:10px;
+  background:var(--red); color:#fff; border:none; border-radius:var(--radius);
+  padding:16px 36px; font-size:18px; font-weight:700; cursor:pointer; font-family:var(--font);
+  margin-top:20px; transition:.2s; letter-spacing:0.5px;
+}
+.sos-btn:hover { background:#ff3355; transform:scale(1.03); }
+.sos-btn.triggered { background:#8a1428; animation:none; }
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.info-tile {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px;
+}
+.info-tile .it-label { font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+.info-tile .it-value { font-size:15px; font-weight:600; }
+.checkin-btn {
+  background:rgba(34,217,142,0.12); color:var(--green); border:1px solid rgba(34,217,142,0.3);
+  border-radius:var(--radius); padding:10px 20px; font-size:14px; font-weight:600;
+  cursor:pointer; font-family:var(--font); width:100%; transition:.2s; margin-top:12px;
+}
+.checkin-btn:hover { background:rgba(34,217,142,0.2); }
+
+/* ── Forms ── */
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.form-field label { display:block; font-size:12px; color:var(--muted); font-weight:600;
+  text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+.form-field input, .form-field select, .form-field textarea {
+  width:100%; padding:11px 14px; background:var(--surface); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); font-family:var(--font); font-size:14px;
+  outline:none; transition:.2s; resize:vertical;
+}
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color:var(--accent); }
+.btn-sm {
+  padding:8px 18px; border-radius:8px; border:none; cursor:pointer; font-family:var(--font);
+  font-size:13px; font-weight:600; transition:.15s;
+}
+.btn-danger { background:rgba(255,79,106,0.15); color:var(--red); border:1px solid rgba(255,79,106,0.3); }
+.btn-success { background:rgba(34,217,142,0.12); color:var(--green); border:1px solid rgba(34,217,142,0.3); }
+.btn-info { background:rgba(61,126,255,0.12); color:var(--accent2); border:1px solid rgba(61,126,255,0.25); }
+.btn-sm:hover { opacity:.8; }
+
+/* ── Notifications ── */
+.notif {
+  position:fixed; top:16px; right:16px; background:var(--card); border:1px solid var(--border2);
+  border-radius:var(--radius); padding:14px 18px; min-width:300px; z-index:999;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5); transform:translateY(-80px); opacity:0;
+  transition:.3s; display:flex; align-items:flex-start; gap:12px;
+}
+.notif.show { transform:translateY(0); opacity:1; }
+.notif-icon { font-size:20px; }
+.notif-text .nt-title { font-weight:600; font-size:14px; }
+.notif-text .nt-body { font-size:13px; color:var(--muted); }
+
+/* ── Grid helpers ── */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+
+@media(max-width:900px) {
+  .stats-grid { grid-template-columns:1fr 1fr; }
+  .grid-2 { grid-template-columns:1fr; }
+  .sidebar { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="brand">
+      <div class="brand-icon">🧭</div>
+      <div class="brand-name">Safe<span>Trail</span></div>
+    </div>
+    <div class="login-title">Welcome back</div>
+    <div class="login-sub">Smart Tourist Safety Monitoring System</div>
+    <div class="role-tabs">
+      <div class="rtab active" onclick="setRole('tourist')">🧳 Tourist</div>
+      <div class="rtab" onclick="setRole('admin')">🛡️ Admin</div>
+      <div class="rtab" onclick="setRole('police')">👮 Authority</div>
+    </div>
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" id="login-email" value="tourist@demo.com" placeholder="Enter email"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-pass" value="demo1234" placeholder="Enter password"/>
+    </div>
+    <button class="btn-primary" onclick="login()">Sign In →</button>
+    <div class="demo-hint">Demo credentials pre-filled. Click <b>Sign In</b> to enter the app.</div>
+  </div>
+</div>
+
+<!-- ── NOTIFICATION TOAST ── -->
+<div class="notif" id="notif">
+  <div class="notif-icon" id="notif-icon">✅</div>
+  <div class="notif-text">
+    <div class="nt-title" id="notif-title">Alert</div>
+    <div class="nt-body" id="notif-body">Message</div>
+  </div>
+</div>
+
+<!-- ── APP SHELL ── -->
+<div id="app">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="nav-brand">Safe<span>Trail</span></div>
+      <div class="page-title" id="nav-page-title">Dashboard</div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-badge" id="role-badge">Admin</div>
+      <div class="alert-bell" onclick="switchPage('alerts')">
+        🔔<div class="bell-dot" id="bell-dot"></div>
+      </div>
+      <div class="nav-avatar" id="nav-avatar" title="Logout" onclick="logout()">A</div>
+    </div>
+  </nav>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Admin sidebar -->
+      <div id="admin-nav">
+        <div class="nav-section">Main</div>
+        <div class="nav-item active" onclick="switchPage('dashboard')">
+          <span class="ni-icon">📊</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="switchPage('map')">
+          <span class="ni-icon">🗺️</span> Live Map
+        </div>
+        <div class="nav-item" onclick="switchPage('alerts')">
+          <span class="ni-icon">🚨</span> Alerts
+          <span class="ni-badge" id="alert-count-badge">3</span>
+        </div>
+        <div class="nav-section">Management</div>
+        <div class="nav-item" onclick="switchPage('tourists')">
+          <span class="ni-icon">👥</span> Tourists
+        </div>
+        <div class="nav-item" onclick="switchPage('zones')">
+          <span class="ni-icon">🏔️</span> Zones
+        </div>
+        <div class="nav-section">Reports</div>
+        <div class="nav-item" onclick="switchPage('reports')">
+          <span class="ni-icon">📈</span> Reports
+        </div>
+        <div class="nav-item" onclick="switchPage('settings')">
+          <span class="ni-icon">⚙️</span> Settings
+        </div>
+      </div>
+      <!-- Tourist sidebar -->
+      <div id="tourist-nav" style="display:none">
+        <div class="nav-section">Navigation</div>
+        <div class="nav-item active" onclick="switchPage('tourist-home')">
+          <span class="ni-icon">🏠</span> Home
+        </div>
+        <div class="nav-item" onclick="switchPage('tourist-map')">
+          <span class="ni-icon">🗺️</span> My Location
+        </div>
+        <div class="nav-item" onclick="switchPage('tourist-alerts')">
+          <span class="ni-icon">🔔</span> My Alerts
+        </div>
+        <div class="nav-item" onclick="switchPage('tourist-profile')">
+          <span class="ni-icon">👤</span> Profile
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="content">
+
+      <!-- ── ADMIN DASHBOARD ── -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-header">
+          <h2>Dashboard Overview</h2>
+          <p>Real-time monitoring of tourists and safety zones · Updated just now</p>
+        </div>
+        <!-- SOS Active -->
+        <div class="sos-card">
+          <div class="sos-header">
+            <div class="sos-dot"></div>
+            <div class="sos-title">⚠️ ACTIVE SOS — Riya Sharma · Marina Beach South</div>
+          </div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Triggered 3 min ago · GPS: 13.0567°N, 80.2832°E · Battery: 18%</div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-sm btn-danger" onclick="respondSOS()">🚨 Dispatch Help</button>
+            <button class="btn-sm btn-info" onclick="callTourist()">📞 Call Tourist</button>
+            <button class="btn-sm btn-success" onclick="resolveSOS()">✅ Mark Resolved</button>
+          </div>
+        </div>
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="sc-label">🧳 Active Tourists</div>
+            <div class="sc-value" style="color:var(--accent2);">147</div>
+            <div class="sc-sub"><span class="sc-trend up">↑12</span> from yesterday</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">🚨 Active Alerts</div>
+            <div class="sc-value" style="color:var(--red);">3</div>
+            <div class="sc-sub"><span class="sc-trend dn">↑2</span> in last hour</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">✅ Safe Zones</div>
+            <div class="sc-value" style="color:var(--green);">8</div>
+            <div class="sc-sub">of 12 zones active</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">📍 SOS Today</div>
+            <div class="sc-value" style="color:var(--amber);">5</div>
+            <div class="sc-sub"><span class="sc-trend up">4 resolved</span></div>
+          </div>
+        </div>
+        <!-- Two columns -->
+        <div class="grid-2">
+          <!-- Recent Alerts -->
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Recent Alerts</div><div class="card-sub">Latest safety events</div></div>
+              <button class="btn-sm btn-info" onclick="switchPage('alerts')">View All</button>
+            </div>
+            <div id="alert-feed"></div>
+          </div>
+          <!-- Active Tourists Table -->
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Active Tourists</div><div class="card-sub">Currently tracked</div></div>
+            </div>
+            <table class="data-table">
+              <thead><tr><th>Name</th><th>Zone</th><th>Status</th><th>Battery</th></tr></thead>
+              <tbody id="tourist-mini-table"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Alert Frequency Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Alert Frequency (Last 7 Days)</div><div class="card-sub">SOS, zone violations, unusual movement</div></div>
+          </div>
+          <div class="bar-wrap" id="alert-chart"></div>
+        </div>
+      </section>
+
+      <!-- ── LIVE MAP ── -->
+      <section class="page" id="page-map">
+        <div class="page-header">
+          <h2>Live Map View</h2>
+          <p>Real-time tourist locations and zone status · Chennai region</p>
+        </div>
+        <div class="map-container" id="admin-map">
+          <div class="map-bg"></div>
+          <!-- Zones -->
+          <div class="map-zone zone-safe" style="left:15%;top:12%;width:180px;height:130px;" onclick="showZoneInfo('Marina Beach','safe',58)">Marina Beach<br><small>58 tourists · Safe</small></div>
+          <div class="map-zone zone-safe" style="left:55%;top:8%;width:140px;height:110px;" onclick="showZoneInfo('Kapaleeshwarar','safe',23)">Kapaleeshwarar<br><small>23 tourists · Safe</small></div>
+          <div class="map-zone zone-warn" style="left:65%;top:48%;width:150px;height:120px;" onclick="showZoneInfo('Old Market Area','warning',12)">Old Market<br><small>12 tourists · Caution</small></div>
+          <div class="map-zone zone-danger" style="left:25%;top:60%;width:130px;height:100px;" onclick="showZoneInfo('Industrial Port','danger',3)">Industrial Port<br><small>3 tourists · Danger</small></div>
+          <div class="map-zone zone-safe" style="left:38%;top:28%;width:120px;height:90px;" onclick="showZoneInfo('Fort St. George','safe',31)">Fort St. George<br><small>31 tourists · Safe</small></div>
+          <!-- Tourist dots -->
+          <div class="tourist-dot" style="left:22%;top:22%;" title="Arjun K." onclick="showTouristInfo('Arjun K.','Marina Beach','safe')"></div>
+          <div class="tourist-dot" style="left:30%;top:18%;" title="Priya R." onclick="showTouristInfo('Priya R.','Marina Beach','safe')"></div>
+          <div class="tourist-dot sos" style="left:34%;top:72%;" title="Riya S. - SOS!" onclick="showTouristInfo('Riya S.','Industrial Port','sos')"></div>
+          <div class="tourist-dot" style="left:60%;top:16%;" title="Vikram N." onclick="showTouristInfo('Vikram N.','Kapaleeshwarar','safe')"></div>
+          <div class="tourist-dot" style="left:70%;top:55%;" title="Meera P." onclick="showTouristInfo('Meera P.','Old Market','warning')"></div>
+          <div class="tourist-dot" style="left:42%;top:33%;" title="Kiran A." onclick="showTouristInfo('Kiran A.','Fort St. George','safe')"></div>
+          <!-- Popup -->
+          <div class="map-popup" id="map-popup"></div>
+          <!-- Legend -->
+          <div class="map-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Safe zone</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Caution zone</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Danger zone</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Tourist</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--red);animation:ping-red 1s infinite"></div>SOS active</div>
+          </div>
+          <!-- Controls -->
+          <div class="map-controls">
+            <div class="map-btn" title="Zoom in">+</div>
+            <div class="map-btn" title="Zoom out">−</div>
+            <div class="map-btn" title="Center">⊙</div>
+            <div class="map-btn" title="Refresh" onclick="showNotif('🗺️','Map refreshed','All tourist positions updated')">↺</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Zone Summary</div></div>
+          <table class="data-table">
+            <thead><tr><th>Zone</th><th>Tourists</th><th>Risk Level</th><th>Last Alert</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>Marina Beach</td><td>58</td><td><span class="status-pill pill-safe">Safe</span></td><td>2h ago</td><td><button class="btn-sm btn-info">Details</button></td></tr>
+              <tr><td>Kapaleeshwarar Temple</td><td>23</td><td><span class="status-pill pill-safe">Safe</span></td><td>5h ago</td><td><button class="btn-sm btn-info">Details</button></td></tr>
+              <tr><td>Old Market Area</td><td>12</td><td><span class="status-pill pill-warn">Warning</span></td><td>40m ago</td><td><button class="btn-sm btn-danger">Alert</button></td></tr>
+              <tr><td>Industrial Port</td><td>3</td><td><span class="status-pill pill-danger">Danger</span></td><td>3m ago</td><td><button class="btn-sm btn-danger">SOS Active</button></td></tr>
+              <tr><td>Fort St. George</td><td>31</td><td><span class="status-pill pill-safe">Safe</span></td><td>1h ago</td><td><button class="btn-sm btn-info">Details</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── ALERTS ── -->
+      <section class="page" id="page-alerts">
+        <div class="page-header">
+          <h2>Alert Management</h2>
+          <p>All safety alerts and SOS signals · Respond and resolve</p>
+        </div>
+        <div class="grid-2" style="margin-bottom:20px;">
+          <div class="stat-card"><div class="sc-label">🔴 SOS Active</div><div class="sc-value" style="color:var(--red)">1</div></div>
+          <div class="stat-card"><div class="sc-label">🟡 Warnings</div><div class="sc-value" style="color:var(--amber)">2</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">All Alerts</div></div>
+          <table class="data-table" id="full-alert-table">
+            <thead><tr><th>Time</th><th>Tourist</th><th>Type</th><th>Location</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="full-alert-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── TOURISTS ── -->
+      <section class="page" id="page-tourists">
+        <div class="page-header">
+          <h2>Tourist Management</h2>
+          <p>All registered tourists · Track, manage and communicate</p>
+        </div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><div class="card-title">Add New Tourist</div></div>
+          <div class="form-row">
+            <div class="form-field"><label>Full Name</label><input type="text" placeholder="e.g. Rahul Kumar"/></div>
+            <div class="form-field"><label>Phone Number</label><input type="text" placeholder="+91 98765 43210"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>Email</label><input type="email" placeholder="rahul@email.com"/></div>
+            <div class="form-field"><label>Nationality</label><input type="text" placeholder="Indian"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>Emergency Contact</label><input type="text" placeholder="+91 98765 11111"/></div>
+            <div class="form-field"><label>Assigned Zone</label>
+              <select><option>Marina Beach</option><option>Kapaleeshwarar Temple</option><option>Fort St. George</option><option>Old Market</option></select>
+            </div>
+          </div>
+          <button class="btn-sm btn-success" onclick="showNotif('✅','Tourist Registered','New tourist added & tracking enabled')">Register Tourist</button>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Registered Tourists</div></div>
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Zone</th><th>Status</th><th>Last Seen</th><th>Actions</th></tr></thead>
+            <tbody id="full-tourist-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── ZONES ── -->
+      <section class="page" id="page-zones">
+        <div class="page-header"><h2>Zone Management</h2><p>Configure safe, warning, and danger zones</p></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Add / Edit Zone</div></div>
+          <div class="form-row">
+            <div class="form-field"><label>Zone Name</label><input type="text" placeholder="e.g. North Beach"/></div>
+            <div class="form-field"><label>Risk Level</label>
+              <select><option>Safe</option><option>Warning</option><option>Danger</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>GPS Latitude</label><input type="text" placeholder="13.0567"/></div>
+            <div class="form-field"><label>GPS Longitude</label><input type="text" placeholder="80.2832"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>Radius (meters)</label><input type="number" placeholder="500"/></div>
+            <div class="form-field"><label>Max Capacity</label><input type="number" placeholder="100"/></div>
+          </div>
+          <button class="btn-sm btn-success" onclick="showNotif('✅','Zone Saved','Zone boundaries updated on live map')">Save Zone</button>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Zone List</div></div>
+          <table class="data-table">
+            <thead><tr><th>Zone Name</th><th>Risk</th><th>Tourists</th><th>Radius</th><th>Coordinates</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Marina Beach</td><td><span class="status-pill pill-safe">Safe</span></td><td>58</td><td>800m</td><td>13.0567°N 80.2832°E</td><td><span class="status-pill pill-safe">Active</span></td></tr>
+              <tr><td>Kapaleeshwarar Temple</td><td><span class="status-pill pill-safe">Safe</span></td><td>23</td><td>300m</td><td>13.0337°N 80.2699°E</td><td><span class="status-pill pill-safe">Active</span></td></tr>
+              <tr><td>Old Market Area</td><td><span class="status-pill pill-warn">Warning</span></td><td>12</td><td>500m</td><td>13.0822°N 80.2785°E</td><td><span class="status-pill pill-safe">Active</span></td></tr>
+              <tr><td>Industrial Port</td><td><span class="status-pill pill-danger">Danger</span></td><td>3</td><td>1200m</td><td>13.0950°N 80.2927°E</td><td><span class="status-pill pill-warn">Restricted</span></td></tr>
+              <tr><td>Fort St. George</td><td><span class="status-pill pill-safe">Safe</span></td><td>31</td><td>400m</td><td>13.0802°N 80.2885°E</td><td><span class="status-pill pill-safe">Active</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── REPORTS ── -->
+      <section class="page" id="page-reports">
+        <div class="page-header"><h2>Reports & Analytics</h2><p>Safety trends and incident analysis</p></div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="sc-label">📅 This Month</div><div class="sc-value" style="color:var(--accent2)">1,240</div><div class="sc-sub">Tourists tracked</div></div>
+          <div class="stat-card"><div class="sc-label">🚨 Total SOS</div><div class="sc-value" style="color:var(--red)">23</div><div class="sc-sub"><span class="sc-trend up">21 resolved</span></div></div>
+          <div class="stat-card"><div class="sc-label">⚠️ Zone Violations</div><div class="sc-value" style="color:var(--amber)">67</div><div class="sc-sub">This month</div></div>
+          <div class="stat-card"><div class="sc-label">⏱️ Avg Response</div><div class="sc-value" style="color:var(--green)">4.2m</div><div class="sc-sub">SOS response time</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">SOS by Zone (This Month)</div></div>
+            <div class="bar-wrap" id="report-chart-1"></div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center">Zone</div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Alert Types Distribution</div></div>
+            <div style="margin-top:12px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+                <span>SOS Emergency</span><span style="color:var(--red);font-weight:600">32%</span>
+              </div>
+              <div style="height:8px;background:var(--surface);border-radius:4px;margin-bottom:14px;">
+                <div style="width:32%;height:100%;background:var(--red);border-radius:4px;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+                <span>Zone Violation</span><span style="color:var(--amber);font-weight:600">45%</span>
+              </div>
+              <div style="height:8px;background:var(--surface);border-radius:4px;margin-bottom:14px;">
+                <div style="width:45%;height:100%;background:var(--amber);border-radius:4px;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+                <span>Unusual Movement</span><span style="color:var(--purple);font-weight:600">23%</span>
+              </div>
+              <div style="height:8px;background:var(--surface);border-radius:4px;">
+                <div style="width:23%;height:100%;background:var(--purple);border-radius:4px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SETTINGS ── -->
+      <section class="page" id="page-settings">
+        <div class="page-header"><h2>System Settings</h2><p>Configure alerts, SMS, email and AI detection</p></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Alert Configuration</div></div>
+            <div class="form-field" style="margin-bottom:12px;"><label>SMS API Provider</label>
+              <select><option>Twilio (Active)</option><option>MSG91</option><option>TextLocal</option></select></div>
+            <div class="form-field" style="margin-bottom:12px;"><label>SMS Sender ID</label>
+              <input type="text" value="SAFETR"/></div>
+            <div class="form-field" style="margin-bottom:12px;"><label>Emergency Email</label>
+              <input type="email" value="emergency@safetrail.com"/></div>
+            <div class="form-field" style="margin-bottom:16px;"><label>SOS Response Time (min)</label>
+              <input type="number" value="5"/></div>
+            <button class="btn-sm btn-success" onclick="showNotif('✅','Settings Saved','Alert configuration updated')">Save Settings</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">AI Detection Settings</div></div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;">
+                <input type="checkbox" checked style="width:16px;height:16px;"> Anomaly Detection (ML)
+              </label>
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;">
+                <input type="checkbox" checked style="width:16px;height:16px;"> Unusual Movement Detection
+              </label>
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;">
+                <input type="checkbox" checked style="width:16px;height:16px;"> Zone Boundary Alerts
+              </label>
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;">
+                <input type="checkbox" style="width:16px;height:16px;"> Crowd Density Warning
+              </label>
+              <div class="form-field"><label>Detection Sensitivity</label>
+                <select><option>High (Recommended)</option><option>Medium</option><option>Low</option></select></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Database Connection (MySQL)</div></div>
+          <div class="form-row">
+            <div class="form-field"><label>Host</label><input type="text" value="localhost"/></div>
+            <div class="form-field"><label>Port</label><input type="text" value="3306"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>Database Name</label><input type="text" value="safetrail_db"/></div>
+            <div class="form-field"><label>Username</label><input type="text" value="safetrail_user"/></div>
+          </div>
+          <button class="btn-sm btn-info" onclick="showNotif('🔌','Connected','MySQL database connection successful')">Test Connection</button>
+        </div>
+      </section>
+
+      <!-- ── TOURIST HOME ── -->
+      <section class="page" id="page-tourist-home">
+        <div class="page-header"><h2>My Safety Dashboard</h2><p>Stay safe · Track your location · Get alerts</p></div>
+        <div class="tourist-hero">
+          <div style="font-size:48px;margin-bottom:8px;">🧳</div>
+          <h3>Hello, Arjun Kumar!</h3>
+          <p>You are currently in <b style="color:var(--green);">Marina Beach (Safe Zone)</b><br>
+          Your location is being monitored by the safety team.</p>
+          <button class="sos-btn" id="tourist-sos-btn" onclick="triggerSOS()">🆘 SOS EMERGENCY</button>
+        </div>
+        <div class="info-grid">
+          <div class="info-tile">
+            <div class="it-label">📍 Current Location</div>
+            <div class="it-value" style="color:var(--accent2)">Marina Beach North</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">13.0567°N, 80.2832°E</div>
+          </div>
+          <div class="info-tile">
+            <div class="it-label">🛡️ Zone Status</div>
+            <div class="it-value" style="color:var(--green)">Safe Zone</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">No active warnings</div>
+          </div>
+          <div class="info-tile">
+            <div class="it-label">🔋 Device Battery</div>
+            <div class="it-value" style="color:var(--amber)">72%</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">Est. 14h remaining</div>
+          </div>
+          <div class="info-tile">
+            <div class="it-label">📶 Signal Strength</div>
+            <div class="it-value" style="color:var(--green)">Strong (4G)</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">GPS locked</div>
+          </div>
+        </div>
+        <button class="checkin-btn" onclick="checkIn()">✅ Check In (Safe & Well)</button>
+        <div class="card" style="margin-top:20px;">
+          <div class="card-header"><div class="card-title">Nearby Alerts</div></div>
+          <div class="alert-item">
+            <div class="alert-icon alert-zone">⚠️</div>
+            <div>
+              <div class="alert-title">Old Market Area – High Crowd</div>
+              <div class="alert-body">Avoid Old Market between 4pm–8pm today due to heavy crowd density</div>
+            </div>
+            <div class="alert-time">1h ago</div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon alert-ok">✅</div>
+            <div>
+              <div class="alert-title">Marina Beach – All Clear</div>
+              <div class="alert-body">Beach area is safe. Weather is good. Enjoy your visit!</div>
+            </div>
+            <div class="alert-time">3h ago</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Emergency Contacts</div></div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span>👮 Police Emergency</span>
+              <a href="tel:100" style="color:var(--accent2);text-decoration:none;font-weight:600;">📞 100</a>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span>🚑 Ambulance</span>
+              <a href="tel:108" style="color:var(--accent2);text-decoration:none;font-weight:600;">📞 108</a>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span>🏥 Tourist Helpline</span>
+              <a href="tel:1800123" style="color:var(--accent2);text-decoration:none;font-weight:600;">📞 1800-123-4567</a>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span>🧭 SafeTrail Control Room</span>
+              <a href="tel:9876543210" style="color:var(--accent2);text-decoration:none;font-weight:600;">📞 +91 98765 43210</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── TOURIST MAP ── -->
+      <section class="page" id="page-tourist-map">
+        <div class="page-header"><h2>My Location</h2><p>Live GPS tracking · Share your location with safety team</p></div>
+        <div class="map-container">
+          <div class="map-bg"></div>
+          <div class="map-zone zone-safe" style="left:20%;top:15%;width:200px;height:150px;">Marina Beach<br><small>You are here · Safe</small></div>
+          <div class="map-zone zone-warn" style="left:55%;top:50%;width:150px;height:110px;">Old Market<br><small>Caution – Avoid</small></div>
+          <div class="tourist-dot" style="left:32%;top:28%;" title="You" onclick="showNotif('📍','Your Location','Marina Beach North · Safe Zone · GPS accuracy: 5m')"></div>
+          <div class="map-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>You are here</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Safe zone</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Caution zone</div>
+          </div>
+          <div class="map-controls">
+            <div class="map-btn">+</div>
+            <div class="map-btn">−</div>
+            <div class="map-btn" onclick="showNotif('📡','GPS Updated','Location accuracy: 3 meters · 4G signal')">⊙</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="it-label" style="font-size:12px;color:var(--muted);margin-bottom:8px;">GPS COORDINATES</div>
+          <div style="font-family:var(--mono);font-size:18px;color:var(--accent2);">13.0567°N, 80.2832°E</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px;">Last updated: just now · Accuracy: 3m · Zone: Marina Beach</div>
+          <button class="checkin-btn" onclick="showNotif('📍','Location Shared','Your location sent to SafeTrail control room')">📤 Share Location</button>
+        </div>
+      </section>
+
+      <!-- ── TOURIST ALERTS ── -->
+      <section class="page" id="page-tourist-alerts">
+        <div class="page-header"><h2>My Alerts</h2><p>Safety notifications for your area</p></div>
+        <div class="card" id="tourist-alert-feed"></div>
+      </section>
+
+      <!-- ── TOURIST PROFILE ── -->
+      <section class="page" id="page-tourist-profile">
+        <div class="page-header"><h2>My Profile</h2><p>Personal info & emergency contacts</p></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Personal Information</div></div>
+          <div class="form-row">
+            <div class="form-field"><label>Full Name</label><input type="text" value="Arjun Kumar"/></div>
+            <div class="form-field"><label>Phone</label><input type="text" value="+91 98765 43210"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>Email</label><input type="email" value="arjun@email.com"/></div>
+            <div class="form-field"><label>Nationality</label><input type="text" value="Indian"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>Emergency Contact</label><input type="text" value="+91 98765 11111"/></div>
+            <div class="form-field"><label>Blood Group</label><input type="text" value="O+"/></div>
+          </div>
+          <div class="form-field" style="margin-bottom:14px;"><label>Medical Notes (optional)</label>
+            <textarea rows="3" placeholder="Any allergies or medical conditions..."></textarea>
+          </div>
+          <button class="btn-sm btn-success" onclick="showNotif('✅','Profile Updated','Your emergency profile saved securely')">Save Profile</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let currentRole = 'tourist';
+let currentPage = '';
+let sosFired = false;
+
+const tourists = [
+  {id:'T001',name:'Arjun Kumar',phone:'+91 98765 43210',zone:'Marina Beach',status:'safe',battery:72,lastSeen:'2m ago'},
+  {id:'T002',name:'Priya Reddy',phone:'+91 98765 00001',zone:'Marina Beach',status:'safe',battery:61,lastSeen:'5m ago'},
+  {id:'T003',name:'Riya Sharma',phone:'+91 98765 00002',zone:'Industrial Port',status:'sos',battery:18,lastSeen:'3m ago'},
+  {id:'T004',name:'Vikram Nair',phone:'+91 98765 00003',zone:'Kapaleeshwarar',status:'safe',battery:88,lastSeen:'1m ago'},
+  {id:'T005',name:'Meera Pillai',phone:'+91 98765 00004',zone:'Old Market',status:'warn',battery:45,lastSeen:'8m ago'},
+  {id:'T006',name:'Kiran Anand',phone:'+91 98765 00005',zone:'Fort St. George',status:'safe',battery:93,lastSeen:'just now'},
+  {id:'T007',name:'Deepa Venkat',phone:'+91 98765 00006',zone:'Marina Beach',status:'offline',battery:0,lastSeen:'2h ago'},
+];
+
+const alerts = [
+  {time:'3m ago',tourist:'Riya Sharma',type:'SOS',loc:'Industrial Port',status:'active',icon:'🆘',cls:'alert-sos'},
+  {time:'40m ago',tourist:'Meera Pillai',type:'Zone Violation',loc:'Old Market',status:'open',icon:'⚠️',cls:'alert-zone'},
+  {time:'1h ago',tourist:'Deepa Venkat',type:'Unusual Movement',loc:'Marina Beach',status:'open',icon:'🔮',cls:'alert-move'},
+  {time:'2h ago',tourist:'Arjun Kumar',type:'Zone Boundary',loc:'Fort St. George',status:'resolved',icon:'✅',cls:'alert-ok'},
+  {time:'3h ago',tourist:'Vikram Nair',type:'Low Battery',loc:'Kapaleeshwarar',status:'resolved',icon:'🔋',cls:'alert-ok'},
+  {time:'5h ago',tourist:'Priya Reddy',type:'SOS (Resolved)',loc:'Marina Beach',status:'resolved',icon:'✅',cls:'alert-ok'},
+];
+
+const chartData = [4,7,5,12,8,9,14];
+const chartDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+// ── Role Tab ──
+function setRole(r) {
+  currentRole = r;
+  document.querySelectorAll('.rtab').forEach((t,i)=>{
+    t.classList.remove('active');
+    if(['tourist','admin','police'][i]===r) t.classList.add('active');
+  });
+  const emails = {tourist:'tourist@demo.com',admin:'admin@demo.com',police:'police@demo.com'};
+  document.getElementById('login-email').value = emails[r];
+}
+
+// ── Login ──
+function login() {
+  const email = document.getElementById('login-email').value;
+  const pass = document.getElementById('login-pass').value;
+  if(!email || !pass) return showNotif('❌','Error','Please fill in all fields');
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  setupRole(currentRole);
+  buildData();
+  // Simulate SOS ping after 4s
+  setTimeout(()=>{showNotif('🆘','SOS ALERT','Riya Sharma triggered SOS at Industrial Port!');},4000);
+}
+
+function logout() {
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+}
+
+function setupRole(role) {
+  const labels = {tourist:'Tourist',admin:'Admin',police:'Authority'};
+  const pages = {tourist:'tourist-home',admin:'dashboard',police:'dashboard'};
+  const initials = {tourist:'A',admin:'AD',police:'P'};
+  document.getElementById('role-badge').textContent = labels[role];
+  document.getElementById('nav-avatar').textContent = initials[role];
+  document.getElementById('admin-nav').style.display = role==='tourist'?'none':'block';
+  document.getElementById('tourist-nav').style.display = role==='tourist'?'block':'none';
+  switchPage(pages[role]);
+}
+
+// ── Page Switch ──
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  const pg = document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+  const titles = {
+    dashboard:'Dashboard',map:'Live Map',alerts:'Alerts',tourists:'Tourists',
+    zones:'Zones',reports:'Reports',settings:'Settings',
+    'tourist-home':'Home','tourist-map':'My Location',
+    'tourist-alerts':'My Alerts','tourist-profile':'Profile'
+  };
+  document.getElementById('nav-page-title').textContent = titles[id]||id;
+  // Highlight nav
+  document.querySelectorAll('.nav-item').forEach(ni=>{
+    if(ni.textContent.trim().toLowerCase().includes((titles[id]||id).toLowerCase())) ni.classList.add('active');
+  });
+  currentPage = id;
+}
+
+// ── Build Data ──
+function buildData() {
+  buildAlertFeed();
+  buildTouristMiniTable();
+  buildFullAlertTable();
+  buildFullTouristTable();
+  buildCharts();
+  buildTouristAlertFeed();
+}
+
+function buildAlertFeed() {
+  const el = document.getElementById('alert-feed');
+  if(!el) return;
+  el.innerHTML = alerts.slice(0,4).map(a=>`
+    <div class="alert-item">
+      <div class="alert-icon ${a.cls}">${a.icon}</div>
+      <div>
+        <div class="alert-title">${a.tourist} · ${a.type}</div>
+        <div class="alert-body">${a.loc}</div>
+      </div>
+      <div class="alert-time">${a.time}</div>
+    </div>`).join('');
+}
+
+function buildTouristMiniTable() {
+  const el = document.getElementById('tourist-mini-table');
+  if(!el) return;
+  el.innerHTML = tourists.slice(0,5).map(t=>{
+    const pill = t.status==='safe'?'pill-safe':t.status==='sos'?'pill-danger':t.status==='warn'?'pill-warn':'pill-offline';
+    const label = t.status==='safe'?'Safe':t.status==='sos'?'SOS!':t.status==='warn'?'Warning':'Offline';
+    const batColor = t.battery>60?'var(--green)':t.battery>30?'var(--amber)':'var(--red)';
+    return `<tr><td>${t.name}</td><td>${t.zone}</td>
+      <td><span class="status-pill ${pill}">${label}</span></td>
+      <td style="color:${batColor};font-weight:600">${t.battery}%</td></tr>`;
+  }).join('');
+}
+
+function buildFullAlertTable() {
+  const el = document.getElementById('full-alert-tbody');
+  if(!el) return;
+  el.innerHTML = alerts.map(a=>{
+    const pill = a.status==='active'?'pill-danger':a.status==='open'?'pill-warn':'pill-resolved';
+    const label = a.status==='active'?'Active':a.status==='open'?'Open':'Resolved';
+    return `<tr>
+      <td>${a.time}</td><td>${a.tourist}</td>
+      <td>${a.icon} ${a.type}</td><td>${a.loc}</td>
+      <td><span class="status-pill ${pill}">${label}</span></td>
+      <td><button class="btn-sm ${a.status==='resolved'?'btn-info':'btn-danger'}"
+        onclick="showNotif('✅','Alert Handled','Status updated')">
+        ${a.status==='resolved'?'View':'Respond'}</button></td></tr>`;
+  }).join('');
+}
+
+function buildFullTouristTable() {
+  const el = document.getElementById('full-tourist-table');
+  if(!el) return;
+  el.innerHTML = tourists.map(t=>{
+    const pill = t.status==='safe'?'pill-safe':t.status==='sos'?'pill-danger':t.status==='warn'?'pill-warn':'pill-offline';
+    const label = t.status==='safe'?'Active':t.status==='sos'?'SOS Active':t.status==='warn'?'Warning':'Offline';
+    return `<tr>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${t.id}</td>
+      <td>${t.name}</td><td>${t.phone}</td><td>${t.zone}</td>
+      <td><span class="status-pill ${pill}">${label}</span></td>
+      <td>${t.lastSeen}</td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn-sm btn-info" onclick="showNotif('📍','Tracking','Viewing ${t.name} location')">Track</button>
+        <button class="btn-sm btn-danger" onclick="showNotif('📞','Calling','Contacting ${t.name}')">Call</button>
+      </td></tr>`;
+  }).join('');
+}
+
+function buildCharts() {
+  const el = document.getElementById('alert-chart');
+  if(!el) return;
+  const max = Math.max(...chartData);
+  el.innerHTML = chartData.map((v,i)=>`
+    <div class="bar-col">
+      <div class="bar" style="height:${Math.round((v/max)*90)}px;background:${v===max?'var(--red)':v>8?'var(--amber)':'var(--accent)'}"></div>
+      <div class="bar-label">${chartDays[i]}</div>
+    </div>`).join('');
+  // Report chart
+  const rc = document.getElementById('report-chart-1');
+  if(rc) {
+    const rd=[5,3,8,2,4]; const rm=8;
+    const labels=['Marina','Kapali','Mkt','Port','Fort'];
+    rc.innerHTML = rd.map((v,i)=>`
+      <div class="bar-col">
+        <div class="bar" style="height:${Math.round((v/rm)*90)}px;background:${v===rm?'var(--red)':'var(--accent)'}"></div>
+        <div class="bar-label">${labels[i]}</div>
+      </div>`).join('');
+  }
+}
+
+function buildTouristAlertFeed() {
+  const el = document.getElementById('tourist-alert-feed');
+  if(!el) return;
+  const myAlerts = [
+    {icon:'⚠️',cls:'alert-zone',title:'Old Market – Crowd Warning',body:'Avoid Old Market area 4–8pm today. High crowd density reported.',time:'1h ago'},
+    {icon:'✅',cls:'alert-ok',title:'Marina Beach – All Clear',body:'Marina Beach is safe and all amenities are operational.',time:'3h ago'},
+    {icon:'🔋',cls:'alert-zone',title:'Low Battery Warning',body:'Your device battery is below 20%. Please charge soon.',time:'Yesterday'},
+    {icon:'📍',cls:'alert-move',title:'Zone Entry Confirmed',body:'You entered Marina Beach Safe Zone. Welcome!',time:'Yesterday'},
+  ];
+  el.innerHTML = '<div class="card-header"><div class="card-title">Recent Notifications</div></div>' +
+    myAlerts.map(a=>`<div class="alert-item">
+      <div class="alert-icon ${a.cls}">${a.icon}</div>
+      <div><div class="alert-title">${a.title}</div><div class="alert-body">${a.body}</div></div>
+      <div class="alert-time">${a.time}</div>
+    </div>`).join('');
+}
+
+// ── Actions ──
+function respondSOS() {
+  showNotif('🚨','Dispatch Sent','Emergency team dispatched to Industrial Port. ETA: 8 min');
+}
+function callTourist() {
+  showNotif('📞','Calling Tourist','Connecting to Riya Sharma on +91 98765 00002...');
+}
+function resolveSOS() {
+  document.querySelector('.sos-card').style.display='none';
+  showNotif('✅','SOS Resolved','Riya Sharma incident marked as resolved');
+}
+function triggerSOS() {
+  const btn = document.getElementById('tourist-sos-btn');
+  if(!sosFired) {
+    sosFired = true;
+    btn.innerHTML = '📡 SOS SENT — Help On The Way';
+    btn.classList.add('triggered');
+    showNotif('🆘','SOS TRIGGERED','Emergency alert sent! Control room notified. Help is coming.');
+  }
+}
+function checkIn() {
+  showNotif('✅','Checked In!','Your safe status reported to the control room.');
+}
+function showZoneInfo(name, status, count) {
+  const popup = document.getElementById('map-popup');
+  const colors = {safe:' (🟢 Safe)',warning:' (🟡 Caution)',danger:' (🔴 Danger)'};
+  popup.innerHTML = `<b>${name}</b>${colors[status]||''}<br><span style="color:var(--muted);font-size:12px">${count} tourists active</span>`;
+  popup.style.left = '50%'; popup.style.top = '40%';
+  popup.classList.add('show');
+  setTimeout(()=>popup.classList.remove('show'),3000);
+}
+function showTouristInfo(name, zone, status) {
+  const popup = document.getElementById('map-popup');
+  const icons = {safe:'🟢',warning:'🟡',sos:'🔴 SOS!'};
+  popup.innerHTML = `<b>${name}</b><br><span style="font-size:12px;color:var(--muted)">${zone} · ${icons[status]||'🔵'}</span>`;
+  popup.style.left = '40%'; popup.style.top = '20%';
+  popup.classList.add('show');
+  setTimeout(()=>popup.classList.remove('show'),3000);
+}
+
+// ── Toast ──
+function showNotif(icon, title, body) {
+  const n = document.getElementById('notif');
+  document.getElementById('notif-icon').textContent = icon;
+  document.getElementById('notif-title').textContent = title;
+  document.getElementById('notif-body').textContent = body;
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>

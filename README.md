@@ -1,230 +1,203 @@
-# 🛡️ Tourist Safety Management System (TSMS)
+# 🧭 SafeTrail – Smart Tourist Safety Monitoring System
+
+A complete full-stack safety monitoring system for tourists.
 
 ---
 
-## 📁 Project Structure
+## 📦 Project Structure
 
 ```
-TSMS/
-├── frontend/                    ← HTML/CSS/JS (open in browser)
-│   ├── login.html               ← Login page
-│   ├── register.html            ← Registration page
-│   ├── dashboard.html           ← Main dashboard
-│   ├── css/
-│   │   └── style.css            ← All styles
-│   └── js/
-│       ├── api.js               ← API call functions
-│       ├── auth.js              ← Login/Register logic
-│       └── dashboard.js         ← Dashboard logic
+SafeTrail/
+├── frontend/
+│   └── index.html              ← Complete frontend (open in browser)
 │
-└── backend/                     ← Spring Boot Java project
-    ├── pom.xml                  ← Maven dependencies
-    └── src/main/java/com/tsms/
-        ├── TsmsApplication.java         ← Main entry point
-        ├── model/
-        │   ├── Tourist.java             ← Tourist entity (DB table)
-        │   └── User.java                ← User entity (login)
-        ├── repository/
-        │   ├── TouristRepository.java   ← DB queries for Tourist
-        │   └── UserRepository.java      ← DB queries for User
-        ├── service/
-        │   ├── TouristService.java      ← Tourist business logic
-        │   └── AuthService.java         ← Login/Register logic
-        ├── controller/
-        │   ├── TouristController.java   ← REST API for tourists
-        │   └── AuthController.java      ← REST API for auth
-        ├── dto/
-        │   └── Dto.java                 ← Request/Response objects
-        └── config/
-            ├── CorsConfig.java          ← Enables CORS for frontend
-            ├── DataSeeder.java          ← Auto-creates demo data
-            └── GlobalExceptionHandler.java
+├── backend/
+│   ├── pom.xml                 ← Maven dependencies
+│   ├── application.properties  ← Config (DB, Twilio, Email, JWT)
+│   ├── SafeTrailApplication.java
+│   ├── Tourist.java            ← Entity
+│   ├── Models.java             ← Alert + Zone entities
+│   ├── Controllers.java        ← REST API controllers
+│   ├── Services.java           ← Business logic + SMS + AI detection
+│   └── Security.java           ← JWT + Spring Security
+│
+└── database/
+    └── safetrail_database.sql  ← MySQL schema + seed data
 ```
-
----
-
-## ✅ Prerequisites
-
-Install these before starting:
-
-| Tool | Version | Download |
-|------|---------|----------|
-| Java JDK | 17 or above | https://adoptium.net |
-| Apache Maven | 3.8+ | https://maven.apache.org/download.cgi |
-| MySQL Server | 8.0+ | https://dev.mysql.com/downloads/mysql/ |
-| VS Code | Latest | https://code.visualstudio.com |
-
-### VS Code Extensions to Install:
-1. **Extension Pack for Java** (by Microsoft)
-2. **Spring Boot Extension Pack** (by Pivotal/VMware)
-3. **Live Server** (by Ritwick Dey) — to serve the frontend
 
 ---
 
 ## 🚀 Step-by-Step Setup
 
-### STEP 1 — Extract the Project
-Unzip the downloaded file. You will see two folders:
-```
-frontend/    ← open this in VS Code too
-backend/     ← open this in VS Code as the Java project
-```
-
----
-
-### STEP 2 — Setup MySQL Database
-1. Open **MySQL Workbench** or any MySQL client
-2. Run this SQL command:
+### Step 1: MySQL Database Setup
 ```sql
-CREATE DATABASE tsms_db;
-```
-> The app will auto-create all tables when it starts (Spring JPA handles this)
+-- Open MySQL Workbench or terminal:
+mysql -u root -p
 
----
-
-### STEP 3 — Configure Database Password
-
-Open `backend/src/main/resources/application.properties` and update:
-```properties
-spring.datasource.username=root
-spring.datasource.password=YOUR_MYSQL_PASSWORD_HERE
+-- Run the SQL file:
+source safetrail_database.sql;
 ```
 
----
-
-### STEP 4 — Open Backend in VS Code
-
-1. Open VS Code
-2. **File → Open Folder** → select the `backend/` folder
-3. Wait for VS Code to load the Maven project (Java extensions will activate)
-4. Open **Terminal** (Ctrl + `` ` ``)
-5. Run:
+### Step 2: Backend – Spring Boot Setup
 ```bash
+# Make sure Java 17+ and Maven are installed
+java -version  # should be 17+
+mvn -version
+
+# Create Spring Boot project structure:
+mkdir -p src/main/java/com/safetrail/{model,controller,service,repository,security,dto}
+mkdir -p src/main/resources
+
+# Copy all .java files into correct packages
+# Copy application.properties to src/main/resources/
+
+# Update application.properties with your real values:
+# - spring.datasource.password = your MySQL password
+# - twilio.account.sid = from twilio.com/console
+# - twilio.auth.token = from twilio.com/console
+# - spring.mail.username/password = your Gmail app password
+
+# Build and run:
+mvn clean install
 mvn spring-boot:run
+
+# Backend runs at: http://localhost:8080
 ```
 
-You should see:
+### Step 3: Frontend Setup
 ```
-========================================
-  TSMS Backend started at port 8080
-  Open: http://localhost:8080/api
-========================================
-[TSMS] Default admin created: admin / admin123
-[TSMS] Sample tourists inserted.
+Simply open frontend/index.html in your browser.
+For production, deploy to Firebase Hosting or Netlify.
 ```
 
 ---
 
-### STEP 5 — Open Frontend in VS Code
+## 🔌 REST API Endpoints
 
-#### Option A — Using Live Server (Recommended)
-1. Open VS Code
-2. **File → Open Folder** → select the `frontend/` folder
-3. Right-click `login.html` → **"Open with Live Server"**
-4. Browser opens at `http://127.0.0.1:5500/login.html`
-
-#### Option B — Direct File Open
-1. Just double-click `login.html` to open in your browser
-2. *(Note: some browsers may block Fetch API on file:// — use Live Server if you have issues)*
-
----
-
-### STEP 6 — Login and Use the App
-
-Open browser at the frontend URL and login with:
-
-| Field | Value |
-|-------|-------|
-| Username | `admin` |
-| Password | `admin123` |
-
----
-
-## 🔌 REST API Reference
-
+### Auth
 | Method | URL | Description |
 |--------|-----|-------------|
-| POST | `/api/auth/login` | Login with username & password |
-| POST | `/api/auth/register` | Register new user |
-| GET | `/api/tourists` | Get all tourists |
-| POST | `/api/tourists` | Add a new tourist |
-| PUT | `/api/tourists/{id}` | Update tourist (name/location/status) |
-| DELETE | `/api/tourists/{id}` | Delete a tourist |
+| POST | `/api/auth/login` | Login, get JWT token |
 
-### Example: Add Tourist (POST /api/tourists)
-```json
+### Tourists
+| Method | URL | Description |
+|--------|-----|-------------|
+| POST | `/api/tourists/register` | Register new tourist |
+| GET | `/api/tourists` | Get all tourists (Admin) |
+| GET | `/api/tourists/{id}` | Get tourist by ID |
+| PUT | `/api/tourists/{id}` | Update profile |
+| POST | `/api/tourists/{id}/checkin` | Tourist check-in (safe) |
+
+### Location
+| Method | URL | Description |
+|--------|-----|-------------|
+| POST | `/api/location/update` | Update GPS location |
+| GET | `/api/location/live` | Get all live locations |
+| GET | `/api/location/history/{id}` | Location history |
+
+### Alerts
+| Method | URL | Description |
+|--------|-----|-------------|
+| POST | `/api/alerts/sos/{touristId}` | Trigger SOS |
+| GET | `/api/alerts/active` | Get active alerts |
+| GET | `/api/alerts` | Get all alerts |
+| PUT | `/api/alerts/{id}/resolve` | Resolve alert |
+
+### Zones
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/zones` | Get all zones |
+| POST | `/api/zones` | Create zone (Admin) |
+| PUT | `/api/zones/{id}` | Update zone (Admin) |
+| GET | `/api/zones/check?lat=&lng=` | Check GPS zone status |
+
+---
+
+## 🔐 JWT Authentication
+
+All protected endpoints require:
+```
+Authorization: Bearer <your-jwt-token>
+```
+Get the token from `/api/auth/login`.
+
+---
+
+## 📱 Tourist Mobile App (Location Update)
+
+Call this every 30 seconds from the tourist device:
+```javascript
+// POST /api/location/update
 {
-  "name": "John Smith",
-  "location": "Bangalore, India",
-  "status": "Safe"
+  "touristId": 1,
+  "latitude": 13.0567,
+  "longitude": 80.2832,
+  "batteryLevel": 72
 }
 ```
 
-### Status Values (exact strings):
-- `"Safe"`
-- `"In Danger"`
-- `"Missing"`
+---
+
+## 🚨 SOS Flow
+
+1. Tourist presses SOS button
+2. App calls: `POST /api/alerts/sos/1?lat=13.05&lng=80.28`
+3. Backend:
+   - Creates SOS alert in MySQL
+   - Sends SMS to emergency contact (Twilio)
+   - Sends SMS to control room
+   - Sends email to admin
+4. Admin dashboard shows SOS in real time
+5. Admin dispatches help, clicks "Resolve"
 
 ---
 
-## 🗄️ Database Table
+## 🤖 AI Features (Built-in)
 
-```sql
--- Auto-created by Spring Boot JPA --
+- **Anomaly Detection**: If tourist GPS jumps > 30 m/s (walking speed), unusual movement alert fires
+- **Zone Boundary Check**: Every location update checked against all zone boundaries using Haversine formula
+- **Low Battery Alert**: Auto SMS when battery ≤ 20%
 
-CREATE TABLE tourist (
-  id       BIGINT AUTO_INCREMENT PRIMARY KEY,
-  name     VARCHAR(255) NOT NULL,
-  location VARCHAR(255) NOT NULL,
-  status   VARCHAR(50)  NOT NULL
-);
+---
 
-CREATE TABLE users (
-  id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-  username  VARCHAR(255) NOT NULL UNIQUE,
-  password  VARCHAR(255) NOT NULL,
-  full_name VARCHAR(255)
-);
+## 🌐 Deployment
+
+### Backend → AWS EC2
+```bash
+mvn clean package
+scp target/safetrail-backend.jar ec2-user@your-ec2-ip:/home/ec2-user/
+ssh ec2-user@your-ec2-ip
+java -jar safetrail-backend.jar
 ```
 
+### Frontend → Firebase Hosting
+```bash
+npm install -g firebase-tools
+firebase login
+firebase init hosting
+firebase deploy
+```
+
+### Database → AWS RDS (MySQL)
+- Create RDS MySQL instance
+- Update `spring.datasource.url` with RDS endpoint
+
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack Summary
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | HTML5, CSS3, Vanilla JavaScript |
-| Backend | Java 17, Spring Boot 3.2 |
+| Frontend | HTML + CSS + JavaScript |
+| Backend | Java 17 + Spring Boot 3 |
 | Database | MySQL 8.0 |
-| ORM | Spring Data JPA / Hibernate |
-| API Style | REST (JSON) |
-| Frontend-Backend | Fetch API + CORS |
+| Auth | JWT + Spring Security |
+| SMS | Twilio API |
+| Email | Gmail SMTP |
+| GPS | Google Maps API (frontend) |
+| AI | Java-based anomaly detection |
+| Deployment | AWS EC2 + RDS + Firebase |
 
 ---
 
-## ⚠️ Troubleshooting
-
-**Problem: "Cannot connect to server" on login**
-→ Make sure the Spring Boot backend is running (`mvn spring-boot:run`)
-
-**Problem: CORS error in browser console**
-→ Use Live Server to serve frontend (not `file://` directly)
-
-**Problem: `Access denied for user 'root'@'localhost'`**
-→ Update the password in `application.properties`
-
-**Problem: `Port 8080 already in use`**
-→ Change `server.port=8081` in `application.properties` and update `API_BASE` in `js/api.js`
-
-**Problem: Maven not found**
-→ Add Maven to your system PATH environment variable
-
----
-
-## 👨‍💻 Author Notes
-This is a beginner-friendly college mini project demonstrating:
-- Full-stack web development with Java Spring Boot
-- REST API design following MVC architecture
-- MySQL database integration with JPA
-- Frontend-backend integration using Fetch API
-- CORS configuration for cross-origin requests
+Made with ❤️ for tourist safety.
